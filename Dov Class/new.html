@@ -1,0 +1,188 @@
+<html style="height: 100%;">
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>New Tab</title>
+    <link rel="stylesheet" type="text/css" href="main.css">
+    <link rel="stylesheet" type="text/css" href="index.css">
+  </head>
+  <script type="text/javascript" src="jq.js"></script>
+  <script type="text/javascript" src="jqui.js"></script>
+  <body bgcolor="#cc0000">
+    
+    <img id="seal" src='seal.png' />
+    <a href='https://spprep.powerschool.com/public/'> 
+      <div class='h1'> 
+        <div class='l igm' id='i1'></div>
+        <div id="IL">
+          <div id="rel">
+            PowerSchool
+          </div>
+        </div>
+      </div>
+    </a>
+    <a href='http://spprep.org/announcements'> 
+      <div class='h2'> 
+        <div class='l igm' id='i2'></div>
+        <div id="IL">
+          <div id="rel">
+            Announcements
+          </div>
+        </div> 
+      </div>
+    </a>
+    <a href='https://www.google.com/calendar/embed?title=Saint%20Peter%27s%20Prep%20Calendar&height=600&wkst=1&bgcolor=%23FFFFFF&src=144grand%40gmail.com&color=%23A32929&src=j2u1oqdhka8e0v1o4p5t6avcjk%40group.calendar.google.com&color=%236E6E41&src=j62aodeshq58d2u3la7pi9b8os%40group.calendar.google.com&color=%230D7813&src=4pjksvuk9if0th7fa6tp1ainoo%40group.calendar.google.com&color=%2329527A&ctz=America%2FNew_York'>
+      <div class='h3'> 
+        <div class='l igm' id='i3'></div>
+        <div id="IL">
+          <div id="rel">
+            Calendar
+          </div>
+        </div>
+      </div>
+    </a>
+    <a href='http://www.spprep.org/files/file/13-14%20time%20sched.pdf'> 
+      <div class='h4'> 
+        <div class='l igm' id='i4'></div>
+        <div id="IL">
+          <div id="rel">
+            Schedule
+          </div>
+        </div> 
+      </div>
+    </a>
+    <a href='http://mail.google.com'> 
+      <div class='h5'> 
+        <div class='l igm' id='i5'></div>
+        <div id="IL">
+          <div id="rel">
+            Gmail
+          </div>
+        </div> 
+      </div>
+    </a>
+    <a href='all1.html'> 
+      <div class='h6'> 
+        <div class='l igm' id='i6'></div>
+        <div id="IL">
+          <div id="rel">
+            Twitter
+          </div>
+        </div> 
+      </div>
+    </a>
+    <a href='fb.html'> 
+      <div class='h7'> 
+        <div class='l igm' id='i7'></div>
+        <div id="IL">
+          <div id="rel">
+            Facebook
+          </div>
+        </div> 
+      </div>
+    </a>
+    <a href='dir.html'> 
+      <div class='h8'>
+        <div class='l igm' id='i8'></div>
+        <div id="IL">
+          <div id="rel">
+            Directions
+          </div>
+        </div> 
+      </div>
+    </a>
+    <script type="text/javascript">
+      function out (r){
+        var iframe = document.createElement("IFRAME");
+        iframe.setAttribute("src",r);
+        document.documentElement.appendChild(iframe);
+        iframe.parentNode.removeChild(iframe);
+        iframe = null;
+      }
+      var homeURL = "http://bluecode.altervista.org/ipetersten/";
+      var version = localStorage.getItem("version");
+      if(version){
+        version = parseInt(version);
+      }else{
+        version=0;
+      }
+      alert(version);
+      var isHandlingVersion = true;
+      function handleXHR (data){
+        if(isHandlingVersion){
+          isHandlingVersion=false;
+          handleVersion(data);
+        }else{
+          data = data.split(",");
+          if(data){
+            for(var i = 0; i < data.length; i++){
+              out("js:url:"+escape(homeURL+data[i]+"?="+Math.random())+"&filename:"+escape(data[i])+"&cmd:download&");
+            }
+          }
+          if(version < newVersion){
+            version++;
+            alert("we must download:version"+version+".txt");
+            xhr = null;
+            xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+              if (xhr.readyState == 4) {
+                if(xhr.responseText){
+                  handleXHR(xhr.responseText);
+                }
+              }
+            };
+            xhr.open('GET', homeURL+'version'+version+'.txt', true);
+            xhr.send(null);
+            
+          }
+          
+          
+        }
+        
+      }
+      var newVersion=0;
+      function handleVersion (data){
+        if(data){
+          newVersion = parseInt(data);
+        }else{
+          newVersion = 0;
+        }
+        
+        if(version < newVersion){
+          version++;
+          alert("we must download:version"+version+".txt");
+          xhr = null;
+          xhr = new XMLHttpRequest();
+          xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4) {
+              if(xhr.responseText){
+                handleXHR(xhr.responseText);
+              }
+            }
+          };
+          xhr.open('GET', homeURL+'version'+version+'.txt?='+Math.random(), true);
+          xhr.send(null);
+          
+        }else{
+          alert(data);
+        }
+        
+      }
+      
+      var xhr = null;
+      xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4) {
+          if(xhr.responseText){
+            handleXHR(xhr.responseText);
+          }
+        }
+      };
+      xhr.open('GET', homeURL+'version.txt?='+Math.random(), true);
+      xhr.send(null);
+      
+      
+      
+    </script>
+  </body>
+  
+</html>

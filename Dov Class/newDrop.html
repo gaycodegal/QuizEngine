@@ -1,0 +1,190 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>This uses Chosen, a jquery plugin full of goodness, open source, and free to use.</title>
+    
+    <link rel="stylesheet" href="chosen.css">
+    
+  </head>
+  <body>
+    
+    <div id="quiz"></div>
+    <button id="sendAll">SEND ALL</button>
+    
+    
+    
+    
+    
+    <script src="jq.js" type="text/javascript"></script>
+    <script src="chosen_jquery.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      var Type = {};
+      var qIDs = [];
+      var idCount = 0;
+      Type["essay"]=function(questionHTML,rows,cols,optionalFill){
+        var object={};
+        //generate entire Object div
+        object.containter = document.createElement("DIV");
+        //gen question text
+        object.questionText = document.createElement("SPAN");
+        $(object.questionText).html(questionHTML);
+        $(object.containter).append(object.questionText);
+        //gen textarea
+        object.textarea = document.createElement("TEXTAREA");
+        $(object.textarea).attr("rows",""+rows);
+        $(object.textarea).attr("cols",""+cols);
+        
+        $(object.textarea).attr("placeholder",optionalFill?optionalFill:"Your Essay Here...");
+        
+        $(object.containter).append(object.textarea);
+        
+        $('#quiz').append(object.containter);   
+        
+        //make sure we can read the answer later
+        qIDs.push(object.textarea);
+      }
+        
+        Type["dropdown"]=function(questionHTML,answerList,optionalFill,isImage){
+          var object={};
+          //generate entire Object div
+          object.containter = document.createElement("DIV");
+          //generate the question
+          object.questionText = document.createElement("SPAN");
+          $(object.questionText).html(questionHTML);
+          $(object.containter).append(object.questionText);
+          
+          //generate the question
+          object.question = document.createElement("SELECT");
+          $(object.question).attr("data-placeholder",optionalFill?optionalFill:"Pick an Answer...");
+          $(object.question).addClass("chosen-select");
+          $(object.question).css("width","350px");
+          $(object.question).attr("tabindex","2");
+          
+          $(object.containter).append(object.question);
+          
+          //add the answers
+          if(isImage){
+            for(var i = 0; i < answerList.length; i++){
+              
+              var option = document.createElement("OPTION");
+              if(answerList[i].length>0){
+                $(option).html((i)+"<br/><img src='"+answerList[i]+"' />");
+              }
+              $(option).attr("value",answerList[i]);
+              $(object.question).append(option);   
+              
+            }
+          }else{
+            for(var i = 0; i < answerList.length; i++){
+              
+              var option = document.createElement("OPTION");
+              $(option).text(answerList[i]);
+              $(option).attr("value",answerList[i]);
+              $(object.question).append(option);   
+              
+            }
+          }
+          $('#quiz').append(object.containter);   
+          
+          //make sure we can read the answer later
+          qIDs.push(object.question);
+        };
+      
+      Type["dropdownmultiple"]=function(questionHTML,answerList,optionalFill,isImage){
+        var object={};
+        //generate entire Object div
+        object.containter = document.createElement("DIV");
+        //generate the question
+        object.questionText = document.createElement("SPAN");
+        $(object.questionText).html(questionHTML);
+        $(object.containter).append(object.questionText);
+        
+        //generate the question
+        object.question = document.createElement("SELECT");
+        $(object.question).attr("data-placeholder",optionalFill?optionalFill:"Pick an Answer...");
+        $(object.question).addClass("chosen-select");
+        $(object.question).css("width","350px");
+        $(object.question).attr("tabindex","2");
+        $(object.question).attr("multiple","");
+        
+        $(object.containter).append(object.question);
+        
+        //add the answers
+        if(isImage){
+          for(var i = 0; i < answerList.length; i++){
+            
+            var option = document.createElement("OPTION");
+            if(answerList[i].length>0){
+              $(option).html((i)+"<br/><img src='"+answerList[i]+"' />");
+            }
+            $(option).attr("value",answerList[i]);
+            $(object.question).append(option);   
+            
+          }
+        }else{
+          for(var i = 0; i < answerList.length; i++){
+            
+            var option = document.createElement("OPTION");
+            $(option).text(answerList[i]);
+            $(option).attr("value",answerList[i]);
+            $(object.question).append(option);   
+            
+          }
+        }
+        
+        $('#quiz').append(object.containter);   
+        
+        //make sure we can read the answer later
+        qIDs.push(object.question);
+      };
+      
+      function addQuestion(type,a,b,c,d){
+        Type[type](a+"&nbsp;",b,c,d);
+      }
+      
+      //must have a blank option one for question of type dropdown
+      addQuestion("dropdown","IMAGES",["","http://stereo.gsfc.nasa.gov/beacon/latest_256/ahead_euvi_195_latest.jpg","http://stereo.gsfc.nasa.gov/beacon/latest_256/ahead_euvi_195_latest.jpg","http://stereo.gsfc.nasa.gov/beacon/latest_256/ahead_euvi_195_latest.jpg"],false,true);
+      addQuestion("dropdown","lol",["","a","b","c"],"MY FILL TEXT");
+      addQuestion("dropdown","lol",["","a","b","c"]);
+      addQuestion("dropdownmultiple","lol",["","a","b","c"]);
+      addQuestion("dropdownmultiple","IMAGES ALSO",["","http://stereo.gsfc.nasa.gov/beacon/latest_256/ahead_euvi_195_latest.jpg","http://stereo.gsfc.nasa.gov/beacon/latest_256/ahead_euvi_195_latest.jpg","http://stereo.gsfc.nasa.gov/beacon/latest_256/ahead_euvi_195_latest.jpg"],"MY FILL TEXT",true);
+      addQuestion("dropdownmultiple","lol",["","a","b","c"]);
+      addQuestion("dropdown","lol",["","a","b","c"]);
+      addQuestion("dropdownmultiple","lol",["","a","b","c"]);
+      addQuestion("dropdown","lol",["","a","b","c"]);
+      addQuestion("essay","Question Text as HTML<br/>",20,50,"MY PLACEHOLDER TEXT");
+      
+      
+      
+    </script>
+    
+    <script type="text/javascript">
+      var config = {
+        '.chosen-select'           : {},
+      };
+      for (var selector in config) {
+        $(selector).chosen(config[selector]);
+      }
+      
+      
+      $("#sendAll").on("click",function(){
+        
+        for (var i = 0; i < qIDs.length; i++) {
+          var val = $(qIDs[i]).val();
+          if(val==null){
+            val = "No Answer";
+          }
+          if(val.length < 1){
+            val = "No Answer";
+          }
+          alert("q"+i+": "+val);
+        }
+        
+        
+        
+      });
+    </script>
+  </body>
+</html>
