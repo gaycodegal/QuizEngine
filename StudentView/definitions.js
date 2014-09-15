@@ -1,6 +1,10 @@
-var Type = {};
-var STDRD = {};
+//var Type = {};
+var choices = {};
 var tabIndex = 1;
+
+//This is needed to store the show/hide lists until the end so we can hide everything!
+var showHideList=[];
+
 //this is just here for reference!! No effect yet!
 var options = {
   timed : false,
@@ -20,6 +24,56 @@ var options = {
 };
 
 /*
+This is the infinite question generator
+*/
+function questionSet(qClass,questions){
+  
+  var container = document.createElement("DIV");
+  
+  for (var i = 0; i < questions.length; i++){
+    $(container).append(questions[i]);
+    //for CSS and for sending quiz to the server
+    if($(questions[i]).is('div')){
+      $(questions[i]).children().each(function(){
+        if($(this).index()==1){
+          $(this).addClass("question");
+        }
+      });
+    }
+  }
+  $(container).addClass(qClass); 
+  
+  
+  return container;
+}
+/*
+This is like 'Q', but a multiquestion variant,
+with the intent to take a class to
+be added
+*/
+
+function questionSet(qClass,questions){
+  
+  var container = document.createElement("DIV");
+  
+  for (var i = 0; i < questions.length; i++){
+    $(container).append(questions[i]);
+    //for CSS and for sending quiz to the server
+    if($(questions[i]).is('div')){
+      $(questions[i]).children().each(function(){
+        if($(this).index()==1){
+          $(this).addClass("question");
+        }
+      });
+    }
+  }
+  $(container).addClass(qClass); 
+  
+  
+  return container;
+}
+
+/*
 question factory 'Q'
 Takes html (or url img()) and a html element
 puts them into a div like so:
@@ -32,6 +86,7 @@ question elem here
 returns the containing div to be added to a quiz or multiquestion
 
 */
+
 function Q(questionHTML,question){
   
   var container = document.createElement("DIV");
@@ -98,7 +153,13 @@ isMultiple - differentiates between dropdown and dropdownmultiple
 returns the created select (drop down) html element
 
 */
-function dropDown(placeholder,answerList,isMultiple){
+function dropDown(placeholder,answerList,showHide,isMultiple){
+  if(typeof answerList == 'string'){
+    answerList = choices[answerList];
+  }
+  if(typeof showHide == 'string'){
+    showHide = choices[showHide];
+  }
   var question = document.createElement("SELECT");
   //placeholder
   $(question).attr("data-placeholder",placeholder?placeholder:"Pick an Answer...");
@@ -136,6 +197,18 @@ function dropDown(placeholder,answerList,isMultiple){
     $(question).append(option);   
     
   }
+  $(question).data("index","0");
+  if(showHide){
+    showHideList.push(showHide);
+    $(question).change(function(){
+      if(showHide[parseInt($(this).data("index"))].length > 0)
+        $("."+showHide[parseInt($(this).data("index"))]).hide();
+      $("."+showHide[this.selectedIndex]).show();
+      $(this).data("index",""+this.selectedIndex);
+    });
+  }
+  
+  
   $(question).attr("tabindex",""+tabIndex);
   tabIndex++;
   return question;
@@ -152,15 +225,34 @@ dropdownmultiple - select list multiple response
 
 
 */
+series=function(args){
+  var questionHTML = args[0],
+      eachQuestionText = args[1];
+  var questionList = [];
+  for(var i = 0; i < 10; i++){
+    questionList.push(questionsFromText(eachQuestionText,i));
+  }
+  
+  var container = Q(questionHTML,
+                    questionSet('series',questionList));
+  
+  return container;
+  
+};
 
-Type["number"]=function(questionHTML,cols,placeholder){
+number=function(args){
+  var questionHTML = args[0],
+      cols = args[1],
+      placeholder = args[2];
   var container = Q(questionHTML,
                     textArea(1,cols,placeholder?placeholder:"...","number"));
   
   return container;
   
 };
-Type["multiquestion"]=function(questionHTML,questionArray){
+multiquestion=function(args){
+  var questionHTML = args[0],
+      questionArray = args[1];
   //generate entire Object div
   var container = document.createElement("DIV");
   //gen question text
@@ -199,7 +291,8 @@ Type["multiquestion"]=function(questionHTML,questionArray){
   
 };
 
-Type["html"]=function(objectHTML){
+html=function(args){
+  var objectHTML = args[0];
   //generate entire Object span
   var container = document.createElement("SPAN");
   //gen question text
@@ -212,7 +305,15 @@ Type["html"]=function(objectHTML){
   
 };
 
-Type["code"]=function(questionHTML,rows,cols,placeholder,rows2,cols2,placeholder2){
+code=function(args){
+  var questionHTML = args[0],
+      rows = args[1],
+      cols = args[2],
+      placeholder = args[3],
+      rows2 = args[4],
+      cols2 = args[5],
+      placeholder2 = args[6];
+  
   //generate entire Object div
   var container = Q(questionHTML,
                     textArea(rows?rows:20,cols?cols:60,placeholder?placeholder:"Your Code Here...","code"),
@@ -243,7 +344,12 @@ Type["code"]=function(questionHTML,rows,cols,placeholder,rows2,cols2,placeholder
   
   
 };
-Type["essay"]=function(questionHTML,rows,cols,placeholder){
+essay=function(args){
+  var questionHTML = args[0],
+      rows = args[1],
+      cols = args[2],
+      placeholder = args[3];
+  
   var container = Q(questionHTML,
                     textArea(rows,cols,placeholder?placeholder:"Your Essay Here...","essay"));
   
@@ -251,24 +357,146 @@ Type["essay"]=function(questionHTML,rows,cols,placeholder){
   
 };
 
-Type["dropdown"]=function(questionHTML,answerList,placeholder){
+dropdown=function(args){
+  var questionHTML = args[0],
+      answerList = args[1],
+      placeholder = args[2],
+      showHide = args[3];
   //generate entire Object div
   var container = Q(questionHTML,
-                    dropDown(placeholder,answerList,false));
+                    dropDown(placeholder,answerList,showHide,false));
   
   
   return container;
 };
 
-Type["dropdownmultiple"]=function(questionHTML,answerList,placeholder){
+dropdownmultiple=function(args){
+  var questionHTML = args[0],
+      answerList = args[1],
+      placeholder = args[2],
+      showHide = args[3];
   //generate entire Object div
   var container = Q(questionHTML,
-                    dropDown(placeholder,answerList,true));
+                    dropDown(placeholder,answerList,showHide,true));
   
   
   return container;
   
 };
+
+
+/*
+These are the functions to show & hide
+question sets.
+*/
+
+/*
+These are the functions to add/remove questions
+from the parent element of the button sender.
+Must still write
+*/
+
+/*
+Generate text with the format of text and then [x]
+*/
+/*
+Eventually I plan to use json and each array in json becomes an object so
+[object,[object2, ...],[object3,[object4,...]...]...]
+would make something like
+<object>
+<object2>
+...
+</object2>
+<object3>
+<object4>
+...
+</object4>
+...
+</object3>
+...
+</object>
+*/
+choices.nums=['0','1','2','3','4','5','6','7','8','9'];
+choices.nums.repeats=true;
+
+function objectFromText(object,index){
+  if(object[0]=='list'){
+    return textIndex(object[1],index);
+  }else{
+    var type = object.shift();
+    for(var i = 0; i < object.length; i++){
+      object[i] = unescape(object[i]);
+      
+    }
+    return question(unescape(type),object);
+  }
+}
+function questionsFromText(text,index,QType){
+  var container = document.createElement(QType?QType:"DIV");
+  //gen question text
+  if(!index){
+    index=0;
+  }
+  if(text.indexOf(']')!=-1){
+    var textArray = text.split(']');
+    for(var i = 0; i < textArray.length; i++){
+      if(textArray[i].indexOf('[')!=-1){
+        var innerArray = textArray[i].split('[');
+        if(innerArray[1].indexOf(':')!=-1){
+          var object = innerArray[1].split(':');
+          $(container).append(innerArray[0]);
+          $(container).append(objectFromText(object,index));
+          
+        }else{
+          $(container).append(innerArray);
+          
+        } 
+      }else{
+        $(container).append(textArray[i]);
+        
+      }
+    }
+  }else{
+    $(container).append(text);
+  }
+  return $(container);
+}
+
+
+
+/*
+Returns the value at index for a standard- for example
+the standard of:
+'0','1' would return the binary representation of a number
+*/
+function textIndex (strd,index) {
+  if(choices[strd].length>index){
+    return choices[strd][index];
+  }else{
+    //115
+    // 115 > 10
+    
+    if(choices[strd].repeats){
+      var returnStr = "";
+      while(index>=choices[strd].length){
+        returnStr = choices[strd][index%choices[strd].length] + returnStr;
+        index -= index%choices[strd].length;
+        index /= choices[strd].length;
+      }
+      returnStr = choices[strd][index] + returnStr;
+      return returnStr;
+    }else{
+      return choices[strd][index%choices[strd].length];
+    }
+  }
+}
+/*
+FROMTEXT
+*/
+function fromText(text,index){
+  this.fromText=text;
+  this.index=index;
+}
 /*
 returns quesiton span if img, returns
 <span><img /></span>
@@ -276,29 +504,47 @@ else fills span with html from 'text'
 
 */
 function questionText(text){
-  var questionText = document.createElement("SPAN");
   
-  $(questionText).html(text.url?"<img src='"+text.url+"' />":text+"&nbsp;");
-  $(questionText).addClass("qHTML");
-  $(questionText).addClass("nonquestion");
+  var questionTextContainer;
+  if(typeof text == 'string'){
+    questionTextContainer = document.createElement("PRE");
+    $(questionTextContainer).html(text);
+  }else if(text.url){
+    questionTextContainer = document.createElement("PRE");
+    $(questionTextContainer).html("<img src='"+text.url+"' />");
+  }else if(text.fromText){
+    questionTextContainer = questionsFromText(text.fromText,text.index,"PRE");
+  }
+  $(questionTextContainer).addClass("qHTML");
+  $(questionTextContainer).addClass("nonquestion");
   
-  return questionText;
+  return questionTextContainer;
 }
 
 /*question
 fills in Type[]() function properly
 
 */
-function question(type,a,b,c,d){
+function question(type,ars){
   
-  if(typeof b === 'string'){
-    if(type=="dropdownmultiple"||type=="dropdown"){
-      b=STDRD[b];
+  var args = [];
+  if(arguments.length == 2 && typeof ars == 'object'){
+    args = ars;
+  }else{
+    for(var i = 1; i < arguments.length; i++){
+      args.push(arguments[i]);
     }
   }
-  return Type[type.toLowerCase()](a,b,c,d);
+  
+  return this[type.toLowerCase()](args);
   
 }
+/*
+This is a constructor to create a question from text format:
+This is my [q:dropdown] quiz
+And here is my [q:dropdownmultiple:]
+*/
+
 /*
 makes text solid
 */
@@ -315,8 +561,11 @@ function img(url){
 sets up a new standard choices list
 */
 function standard(name,array){
-  STDRD[name]=array;
-  return STDRD[name];
+  
+  choices[name]=array;
+  
+  return choices[name];
+  
 }
 
 /*
@@ -338,25 +587,28 @@ sets up a new quiz choices list
 TODO: add submit button to the end of each quiz
 */
 function quiz(questions){
-  var quiz = document.createElement("DIV");
+
+  var quizContainer = document.createElement("DIV");
   var timeDiv = document.createElement("DIV");
   var SUBMIT = document.createElement("BUTTON");
   $(SUBMIT).text("SUBMIT");
   
   $(timeDiv).text("Time Elapsed - 00:00:00");
-  $(quiz).append(timeDiv);
+  $(quizContainer).append(timeDiv);
   
-  $(quiz).addClass('quiz');
+  $(quizContainer).addClass('quiz');
   for(var i = 0; i < questions.length; i++){
-    $(quiz).append(questions[i]);
+    $(quizContainer).append(questions[i]);
   }
-  $(quiz).append(SUBMIT);
+  
+  
+  $(quizContainer).append(SUBMIT);
   
   $(SUBMIT).on("click",function(){
-    SUBMIT_ONE_QUIZ(quiz);
+    SUBMIT_ONE_QUIZ(quizContainer);
   });
   
-  document.body.appendChild(quiz);
+  document.body.appendChild(quizContainer);
   
   /*
   TODO, quiz starts hidden with a click to take quiz button.
@@ -370,7 +622,7 @@ function quiz(questions){
       $(timeDiv).text("Time Elapsed - "+msToTime(endTime-startTime));
     },500);
   };
-  
+
   //will be removed on TODO completion
   start();
 }
