@@ -195,8 +195,22 @@ dropdownmultiple - select list multiple response
 
 
 */
+Type.series=function(args){
+  var questionHTML = args[0],
+      eachQuestionText = args[1];
+  var questionList = [];
+  for(var i = 0; i < 10; i++){
+    questionList.push(questionsFromText(eachQuestionText,i));
+  }
+  
+  var container = Q(questionHTML,
+                    questionSet('series',questionList));
+  
+  return container;
+  
+};
 
-Type["number"]=function(args){
+Type.number=function(args){
   var questionHTML = args[0],
       cols = args[1],
       placeholder = args[2];
@@ -206,7 +220,7 @@ Type["number"]=function(args){
   return container;
   
 };
-Type["multiquestion"]=function(args){
+Type.multiquestion=function(args){
   var questionHTML = args[0],
       questionArray = args[1];
   //generate entire Object div
@@ -247,7 +261,7 @@ Type["multiquestion"]=function(args){
   
 };
 
-Type["html"]=function(args){
+Type.html=function(args){
   var objectHTML = args[0];
   //generate entire Object span
   var container = document.createElement("SPAN");
@@ -261,7 +275,7 @@ Type["html"]=function(args){
   
 };
 
-Type["code"]=function(args){
+Type.code=function(args){
   var questionHTML = args[0],
       rows = args[1],
       cols = args[2],
@@ -300,7 +314,7 @@ Type["code"]=function(args){
   
   
 };
-Type["essay"]=function(args){
+Type.essay=function(args){
   var questionHTML = args[0],
       rows = args[1],
       cols = args[2],
@@ -313,7 +327,7 @@ Type["essay"]=function(args){
   
 };
 
-Type["dropdown"]=function(args){
+Type.dropdown=function(args){
   var questionHTML = args[0],
       answerList = args[1],
       placeholder = args[2],
@@ -326,7 +340,7 @@ Type["dropdown"]=function(args){
   return container;
 };
 
-Type["dropdownmultiple"]=function(args){
+Type.dropdownmultiple=function(args){
   var questionHTML = args[0],
       answerList = args[1],
       placeholder = args[2],
@@ -355,9 +369,25 @@ Must still write
 /*
 Generate text with the format of text and then [x]
 */
-
-choices["nums"]=['0','1'];//,'2','3','4','5','6','7','8','9'];
-choices["nums"].repeats=true;
+/*
+Eventually I plan to use json and each array in json becomes an object so
+[object,[object2, ...],[object3,[object4,...]...]...]
+would make something like
+<object>
+<object2>
+...
+</object2>
+<object3>
+<object4>
+...
+</object4>
+...
+</object3>
+...
+</object>
+*/
+choices.nums=['0','1','2','3','4','5','6','7','8','9'];
+choices.nums.repeats=true;
 
 function objectFromText(object,index){
   if(object[0]=='list'){
@@ -371,8 +401,8 @@ function objectFromText(object,index){
     return question(unescape(type),object);
   }
 }
-function questionsFromText(text,index){
-  var container = document.createElement("DIV");
+function questionsFromText(text,index,QType){
+  var container = document.createElement(QType?QType:"DIV");
   //gen question text
   if(!index){
     index=0;
@@ -399,7 +429,7 @@ function questionsFromText(text,index){
   }else{
     $(container).append(text);
   }
-  return ($(container).html());
+  return $(container);
 }
 
 
@@ -430,7 +460,13 @@ function textIndex (strd,index) {
     }
   }
 }
-
+/*
+FROMTEXT
+*/
+function fromText(text,index){
+  this.fromText=text;
+  this.index=index;
+}
 /*
 returns quesiton span if img, returns
 <span><img /></span>
@@ -438,13 +474,21 @@ else fills span with html from 'text'
 
 */
 function questionText(text){
-  var questionText = document.createElement("PRE");
   
-  $(questionText).html(text.url?"<img src='"+text.url+"' />":text);
-  $(questionText).addClass("qHTML");
-  $(questionText).addClass("nonquestion");
+  var questionTextContainer;
+  if(typeof text == 'string'){
+    questionTextContainer = document.createElement("PRE");
+    $(questionTextContainer).html(text);
+  }else if(text.url){
+    questionTextContainer = document.createElement("PRE");
+    $(questionTextContainer).html("<img src='"+text.url+"' />");
+  }else if(text.fromText){
+    questionTextContainer = questionsFromText(text.fromText,text.index,"PRE");
+  }
+  $(questionTextContainer).addClass("qHTML");
+  $(questionTextContainer).addClass("nonquestion");
   
-  return questionText;
+  return questionTextContainer;
 }
 
 /*question
@@ -513,30 +557,28 @@ sets up a new quiz choices list
 TODO: add submit button to the end of each quiz
 */
 function quiz(questions){
-  var quiz = document.createElement("DIV");
+
+  var quizContainer = document.createElement("DIV");
   var timeDiv = document.createElement("DIV");
   var SUBMIT = document.createElement("BUTTON");
   $(SUBMIT).text("SUBMIT");
   
   $(timeDiv).text("Time Elapsed - 00:00:00");
-  $(quiz).append(timeDiv);
+  $(quizContainer).append(timeDiv);
   
-  $(quiz).addClass('quiz');
+  $(quizContainer).addClass('quiz');
   for(var i = 0; i < questions.length; i++){
-    $(quiz).append(questions[i]);
+    $(quizContainer).append(questions[i]);
   }
   
-  for(var i = 0; i < 10; i++){
-    $(quiz).append(questionsFromText('hello[list:nums] how are you? ['+("dropdown:Type of Question:qTypes:Choose a type...:qTypes)")+'] I am very swell... ',i));
-  }
   
-  $(quiz).append(SUBMIT);
+  $(quizContainer).append(SUBMIT);
   
   $(SUBMIT).on("click",function(){
-    SUBMIT_ONE_QUIZ(quiz);
+    SUBMIT_ONE_QUIZ(quizContainer);
   });
   
-  document.body.appendChild(quiz);
+  document.body.appendChild(quizContainer);
   
   /*
   TODO, quiz starts hidden with a click to take quiz button.
@@ -550,7 +592,7 @@ function quiz(questions){
       $(timeDiv).text("Time Elapsed - "+msToTime(endTime-startTime));
     },500);
   };
-  
+
   //will be removed on TODO completion
   start();
 }
