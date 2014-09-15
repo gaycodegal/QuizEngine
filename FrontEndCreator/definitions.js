@@ -1,4 +1,4 @@
-var Type = {};
+//var Type = {};
 var choices = {};
 var tabIndex = 1;
 
@@ -24,17 +24,7 @@ var options = {
 };
 
 /*
-question factory 'Q'
-Takes html (or url img()) and a html element
-puts them into a div like so:
-
-<div>
-<span>html</span>
-question elem here
-</div>
-
-returns the containing div to be added to a quiz or multiquestion
-
+This is the infinite question generator
 */
 function questionSet(qClass,questions){
   
@@ -56,6 +46,46 @@ function questionSet(qClass,questions){
   
   return container;
 }
+/*
+This is like 'Q', but a multiquestion variant,
+with the intent to take a class to
+be added
+*/
+
+function questionSet(qClass,questions){
+  
+  var container = document.createElement("DIV");
+  
+  for (var i = 0; i < questions.length; i++){
+    $(container).append(questions[i]);
+    //for CSS and for sending quiz to the server
+    if($(questions[i]).is('div')){
+      $(questions[i]).children().each(function(){
+        if($(this).index()==1){
+          $(this).addClass("question");
+        }
+      });
+    }
+  }
+  $(container).addClass(qClass); 
+  
+  
+  return container;
+}
+
+/*
+question factory 'Q'
+Takes html (or url img()) and a html element
+puts them into a div like so:
+
+<div>
+<span>html</span>
+question elem here
+</div>
+
+returns the containing div to be added to a quiz or multiquestion
+
+*/
 
 function Q(questionHTML,question){
   
@@ -195,7 +225,7 @@ dropdownmultiple - select list multiple response
 
 
 */
-Type.series=function(args){
+series=function(args){
   var questionHTML = args[0],
       eachQuestionText = args[1];
   var questionList = [];
@@ -210,7 +240,7 @@ Type.series=function(args){
   
 };
 
-Type.number=function(args){
+number=function(args){
   var questionHTML = args[0],
       cols = args[1],
       placeholder = args[2];
@@ -220,7 +250,7 @@ Type.number=function(args){
   return container;
   
 };
-Type.multiquestion=function(args){
+multiquestion=function(args){
   var questionHTML = args[0],
       questionArray = args[1];
   //generate entire Object div
@@ -261,7 +291,7 @@ Type.multiquestion=function(args){
   
 };
 
-Type.html=function(args){
+html=function(args){
   var objectHTML = args[0];
   //generate entire Object span
   var container = document.createElement("SPAN");
@@ -275,7 +305,7 @@ Type.html=function(args){
   
 };
 
-Type.code=function(args){
+code=function(args){
   var questionHTML = args[0],
       rows = args[1],
       cols = args[2],
@@ -314,7 +344,7 @@ Type.code=function(args){
   
   
 };
-Type.essay=function(args){
+essay=function(args){
   var questionHTML = args[0],
       rows = args[1],
       cols = args[2],
@@ -327,7 +357,7 @@ Type.essay=function(args){
   
 };
 
-Type.dropdown=function(args){
+dropdown=function(args){
   var questionHTML = args[0],
       answerList = args[1],
       placeholder = args[2],
@@ -340,7 +370,7 @@ Type.dropdown=function(args){
   return container;
 };
 
-Type.dropdownmultiple=function(args){
+dropdownmultiple=function(args){
   var questionHTML = args[0],
       answerList = args[1],
       placeholder = args[2],
@@ -506,7 +536,7 @@ function question(type,ars){
     }
   }
   
-  return Type[type.toLowerCase()](args);
+  return this[type.toLowerCase()](args);
   
 }
 /*
