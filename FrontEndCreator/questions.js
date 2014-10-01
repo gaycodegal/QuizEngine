@@ -9,7 +9,13 @@ standard('incorrect',['Incorrect','Correct']);
 
 quiz({qList:[
   
-  question({type:'dropdown',qHTML:'Type of Question:',ansrL:choices['qTypes'],pHold:'Choose a type...',hideL:choices['qTypes2']}),
+  question({
+    type:'dropdown',
+    qHTML:'Type of Question:',
+    ansrL:choices['qTypes'],
+    pHold:'Choose a type...',
+    hideL:choices['qTypes2']
+  }),
   question({type:'essay',qHTML:'Question Text:',rows:3,cols:30,pHold:'Your text here...'}),
   questionSet({class:'dropdowns multidropdowns',qList:[
     question({type:'essay',qHTML:'Placeholder Text:',rows:3,cols:30,pHold:'Your text here...'}),

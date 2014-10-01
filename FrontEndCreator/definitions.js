@@ -433,6 +433,7 @@ function objectFromText(object,index){
     return question(unescape(type),object);
   }
 }
+
 function questionsFromText(text,index,QType){
   var container = document.createElement(QType?QType:"DIV");
   //gen question text
@@ -499,6 +500,20 @@ function fromText(text,index){
   this.fromText=text;
   this.index=index;
 }
+/*attempting to make fromText into a constructor method.
+
+var consTop={},
+consObj={};
+
+function constructorTop(object){
+
+}
+function constructorObj(object){
+
+}
+*/
+
+
 /*
 returns quesiton span if img, returns
 <span><img /></span>
@@ -592,62 +607,63 @@ merge function to merge objects
 
 var merge = function (obj,objM){
   for(var key in objM) {
-     obj[key]= objM[key];
+    obj[key]= objM[key];
   }
 }
-/*
-sets up a new quiz choices list
-TODO: add submit button to the end of each quiz
-*/
-function quiz(object){
-  var questions = object.qList;
-  var options={
-    timed:false
-  };
-  merge(options,object.opts);
-  var timeDiv;
-  var quizContainer = document.createElement("DIV");
-  if(options.timed){
-    timeDiv = document.createElement("DIV");
-  }
-  
-  var SUBMIT = document.createElement("BUTTON");
-  $(SUBMIT).text("SUBMIT");
-  if(options.timed){
-    $(timeDiv).text("Time Elapsed - 00:00:00");
-    $(quizContainer).append(timeDiv);
-  }
-  $(quizContainer).addClass('quiz');
-  for(var i = 0; i < questions.length; i++){
-    $(quizContainer).append(questions[i]);
-  }
-  
-  
-  $(quizContainer).append(SUBMIT);
-  
-  $(SUBMIT).on("click",function(){
-    SUBMIT_ONE_QUIZ(quizContainer);
-  });
-  
-  document.body.appendChild(quizContainer);
-  
-  /*
-  TODO, quiz starts hidden with a click to take quiz button.
-  Then run the start function to make the quiz appear,
-  and start the timer
-  */
-  if(options.timed){
-    
-    var start = function(){
-      var startTime = (new Date()).getTime();
-      setInterval(function(){
-        var endTime = (new Date()).getTime();
-        $(timeDiv).text("Time Elapsed - "+msToTime(endTime-startTime));
-      },500);
-    };
-    start();
-    
-  }
-  
-  //will be removed on TODO completion
-}
+    /*
+    sets up a new quiz choices list
+    TODO: add submit button to the end of each quiz
+    */
+    function quiz(object){
+      var questions = object.qList;
+      var options={
+        timed:false
+      };
+      merge(options,object.opts);
+      var timeDiv;
+      var quizContainer = document.createElement("DIV");
+      if(options.timed){
+        timeDiv = document.createElement("DIV");
+      }
+      
+      var SUBMIT = document.createElement("BUTTON");
+      $(SUBMIT).text("SUBMIT");
+      if(options.timed){
+        $(timeDiv).text("Time Elapsed - 00:00:00");
+        $(quizContainer).append(timeDiv);
+      }
+      $(quizContainer).addClass('quiz');
+      for(var i = 0; i < questions.length; i++){
+        $(questions[i]).addClass('Q');
+        $(quizContainer).append(questions[i]);
+      }
+      
+      
+      $(quizContainer).append(SUBMIT);
+      
+      $(SUBMIT).on("click",function(){
+        SUBMIT_ONE_QUIZ(quizContainer);
+      });
+      
+      document.body.appendChild(quizContainer);
+      
+      /*
+      TODO, quiz starts hidden with a click to take quiz button.
+      Then run the start function to make the quiz appear,
+      and start the timer
+      */
+      if(options.timed){
+        
+        var start = function(){
+          var startTime = (new Date()).getTime();
+          setInterval(function(){
+            var endTime = (new Date()).getTime();
+            $(timeDiv).text("Time Elapsed - "+msToTime(endTime-startTime));
+          },500);
+        };
+        start();
+        
+      }
+      
+      //will be removed on TODO completion
+    }
