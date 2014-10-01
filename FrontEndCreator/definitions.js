@@ -6,7 +6,7 @@ var tabIndex = 1;
 var showHideList=[];
 
 //this is just here for reference!! No effect yet!
-var options = {
+var opts = {
   timed : false,
   showAnswers: false,
   scored: true,
@@ -26,8 +26,9 @@ var options = {
 /*
 This is the infinite question generator
 */
-function questionSet(qClass,questions){
-  
+function questionSet(object){
+  var qClass = object.class;
+  var questions = object.qList;
   var container = document.createElement("DIV");
   
   for (var i = 0; i < questions.length; i++){
@@ -52,8 +53,9 @@ with the intent to take a class to
 be added
 */
 
-function questionSet(qClass,questions){
-  
+function questionSet(object){
+  var qClass = object.class
+      ,questions = object.qList;
   var container = document.createElement("DIV");
   
   for (var i = 0; i < questions.length; i++){
@@ -226,8 +228,8 @@ dropdownmultiple - select list multiple response
 
 */
 series=function(args){
-  var questionHTML = args[0],
-      eachQuestionText = args[1];
+  var questionHTML = object.qHTML,
+      eachQuestionText = object.qText;
   var questionList = [];
   for(var i = 0; i < 10; i++){
     questionList.push(questionsFromText(eachQuestionText,i));
@@ -241,18 +243,18 @@ series=function(args){
 };
 
 number=function(args){
-  var questionHTML = args[0],
-      cols = args[1],
-      placeholder = args[2];
+  var questionHTML = object.qHTML,
+      cols = object.cols,
+      placeholder = object.pHold;
   var container = Q(questionHTML,
                     textArea(1,cols,placeholder?placeholder:"...","number"));
   
   return container;
   
 };
-multiquestion=function(args){
-  var questionHTML = args[0],
-      questionArray = args[1];
+multiquestion=function(object){
+  var questionHTML = object.qHTML,
+      questionArray = object.qArry;
   //generate entire Object div
   var container = document.createElement("DIV");
   //gen question text
@@ -291,8 +293,8 @@ multiquestion=function(args){
   
 };
 
-html=function(args){
-  var objectHTML = args[0];
+html=function(object){
+  var objectHTML = object.HTML;
   //generate entire Object span
   var container = document.createElement("SPAN");
   //gen question text
@@ -305,19 +307,19 @@ html=function(args){
   
 };
 
-code=function(args){
-  var questionHTML = args[0],
-      rows = args[1],
-      cols = args[2],
-      placeholder = args[3],
-      rows2 = args[4],
-      cols2 = args[5],
-      placeholder2 = args[6];
+code=function(object){
+  var questionHTML = object.qHTML,
+      rows = object.rows || object.rowsE,//rowsEditor
+      cols = object.cols || object.colsE,//colsEditor
+      placeholder = object.pHold || object.pHoldE,//pHoldEditor
+      rows2 = object.rows2 || object.rowsC,//rowsConsole
+      cols2 = object.cols2 || object.rowsC,//colsConsole
+      placeholder2 = object.pHold2 || object.pHoldC;//pHoldConsole
   
   //generate entire Object div
   var container = Q(questionHTML,
                     textArea(rows?rows:20,cols?cols:60,placeholder?placeholder:"Your Code Here...","code"),
-                    textArea(rows2?rows2:20,cols2?cols2:30,placeholder2?placeholder2:"Server Response","code"));
+                    textArea(rows2?rows2:20,cols2?cols2:30,placeholder2?placeholder2:"Server Response","code nonquestion"));
   
   /*
   This only applies to code containers
@@ -344,11 +346,11 @@ code=function(args){
   
   
 };
-essay=function(args){
-  var questionHTML = args[0],
-      rows = args[1],
-      cols = args[2],
-      placeholder = args[3];
+essay=function(object){
+  var questionHTML = object.qHTML,
+      rows = object.rows,
+      cols = object.cols,
+      placeholder = object.pHold;
   
   var container = Q(questionHTML,
                     textArea(rows,cols,placeholder?placeholder:"Your Essay Here...","essay"));
@@ -357,11 +359,11 @@ essay=function(args){
   
 };
 
-dropdown=function(args){
-  var questionHTML = args[0],
-      answerList = args[1],
-      placeholder = args[2],
-      showHide = args[3];
+dropdown=function(object){
+  var questionHTML = object.qHTML,
+      answerList = object.ansrL,
+      placeholder = object.pHold,
+      showHide = object.hideL;
   //generate entire Object div
   var container = Q(questionHTML,
                     dropDown(placeholder,answerList,showHide,false));
@@ -370,11 +372,11 @@ dropdown=function(args){
   return container;
 };
 
-dropdownmultiple=function(args){
-  var questionHTML = args[0],
-      answerList = args[1],
-      placeholder = args[2],
-      showHide = args[3];
+dropdownmultiple=function(object){
+  var questionHTML = object.qHTML,
+      answerList = object.ansrL,
+      placeholder = object.pHold,
+      showHide = object.hideL;
   //generate entire Object div
   var container = Q(questionHTML,
                     dropDown(placeholder,answerList,showHide,true));
@@ -525,18 +527,20 @@ function questionText(text){
 fills in Type[]() function properly
 
 */
-function question(type,ars){
+function question(obj){
   
-  var args = [];
-  if(arguments.length == 2 && typeof ars == 'object'){
-    args = ars;
-  }else{
-    for(var i = 1; i < arguments.length; i++){
-      args.push(arguments[i]);
-    }
+  var object = {};
+  var type;//filled in here
+  if(arguments.length == 1 && typeof obj == 'object'){
+    object = obj;
+    type = object.type;
+  }else if(arguments.length == 2){
+    object = arguments[1];
+    type = arguments[0]?arguments[0]:object.type;
   }
   
-  return this[type.toLowerCase()](args);
+  
+  return this[type.toLowerCase()](object);
   
 }
 /*
@@ -583,19 +587,36 @@ function msToTime(s) {
   return (hrs<10?"0"+hrs:hrs) + ':' + (mins<10?"0"+mins:mins) + ':' + (secs<10?"0"+secs:secs);// + '.' + ms;
 }
 /*
+merge function to merge objects
+*/
+
+var merge = function (obj,objM){
+  for(var key in objM) {
+     obj[key]= objM[key];
+  }
+}
+/*
 sets up a new quiz choices list
 TODO: add submit button to the end of each quiz
 */
-function quiz(questions){
-
+function quiz(object){
+  var questions = object.qList;
+  var options={
+    timed:false
+  };
+  merge(options,object.opts);
+  var timeDiv;
   var quizContainer = document.createElement("DIV");
-  var timeDiv = document.createElement("DIV");
+  if(options.timed){
+    timeDiv = document.createElement("DIV");
+  }
+  
   var SUBMIT = document.createElement("BUTTON");
   $(SUBMIT).text("SUBMIT");
-  
-  $(timeDiv).text("Time Elapsed - 00:00:00");
-  $(quizContainer).append(timeDiv);
-  
+  if(options.timed){
+    $(timeDiv).text("Time Elapsed - 00:00:00");
+    $(quizContainer).append(timeDiv);
+  }
   $(quizContainer).addClass('quiz');
   for(var i = 0; i < questions.length; i++){
     $(quizContainer).append(questions[i]);
@@ -615,14 +636,18 @@ function quiz(questions){
   Then run the start function to make the quiz appear,
   and start the timer
   */
-  var start = function(){
-    var startTime = (new Date()).getTime();
-    setInterval(function(){
-      var endTime = (new Date()).getTime();
-      $(timeDiv).text("Time Elapsed - "+msToTime(endTime-startTime));
-    },500);
-  };
-
+  if(options.timed){
+    
+    var start = function(){
+      var startTime = (new Date()).getTime();
+      setInterval(function(){
+        var endTime = (new Date()).getTime();
+        $(timeDiv).text("Time Elapsed - "+msToTime(endTime-startTime));
+      },500);
+    };
+    start();
+    
+  }
+  
   //will be removed on TODO completion
-  start();
 }
