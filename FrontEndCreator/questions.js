@@ -1,36 +1,56 @@
-//must have a blank option one for question of type dropdown
+var config = {
+  '.chosen-select'           : {},
+};
+for (var selector in config) {
+  $(selector).chosen(config[selector]);
+}
 
-standard('qTypes',["","Drop Down", "Multidrop-down", "Number Fillin", "Essay", "Code"]);
+for(var k = 0; k < showHideList.length; k++){
+  // alert(showHide);
+  var showHide=showHideList[k];
+  for(var i = 0; i < showHide.length; i++){
+  //  alert(showHide[i]);
+    if(showHide[i].length>0)
+      $("."+showHide[i]).hide();
+  }
+}
 
-standard('qTypes2',["","dropdowns", "multidropdowns", "numfillins", "essays", "codes"]);
-standard('correct',["Correct","Incorrect"]);
-standard('incorrect',["Incorrect","Correct"]);
+function SUBMIT_ONE_QUIZ(quiz){
+  var i = 0;
+  var allSend = "";
+  $(quiz).find(".question").each(function(){
+    if(!$(this).hasClass("nonquestion")){
+      if(i>0)
+        allSend+=",\n";
+      var val = $(this).val();
+      if(val==null){
+        val = "No Answer";
+      }
+      if(val.length < 1){
+        val = "No Answer";
+      }
+      //BTW we will escape the val of each answer so that students can't mess server parsing up
+      allSend+=("{q"+i+": "+val+"}");
+      i++;
+    }
+  });
+  alert(allSend);
+}
 
+/*Will send all quizes if need be
+$("#sendAll").on("click",function(){
+var i = 0;
+$(".quiz").find(".question").each(function(){
+var val = $(this).val();
+if(val==null){
+val = "No Answer";
+}
+if(val.length < 1){
+val = "No Answer";
+}
+alert("q"+i+": "+val);
+i++;
+});
 
-quiz([
-  
-  question("dropdown","Type of Question:",choices['qTypes'],'Choose a type...',choices['qTypes2']),
-  question("essay","Question Text:",3,30,'Your text here...'),
-  questionSet("dropdowns multidropdowns",[
-    question("essay","Placeholder Text:",3,30,'Your text here...'),
-    question("multiquestion","",[
-      question("essay","Answer Choice 1:",3,30,'Your text here...'),
-      question("dropdown","",choices['correct'])
-    ]),
-    question("multiquestion","",[
-      question("essay","Answer Choice 2:",3,30,'Your text here...'),
-      question("dropdown","",choices['incorrect'])
-    ]),
-    question("multiquestion","",[
-      question("essay","Answer Choice 3:",3,30,'Your text here...'),
-      question("dropdown","",choices['incorrect'])
-    ])
-  ]),
-  questionSet("codes",[
-    question("essay","Base Code:",3,30,'Your base code here...')
-  ]),
-  questionSet("numfillins essays",[
-    question("essay","Placeholder Text:",3,30,'Your placeholder text here...')
-  ])
-]);
-
+});
+*/
