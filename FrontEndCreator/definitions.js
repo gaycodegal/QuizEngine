@@ -243,13 +243,13 @@ series=function(args){
   
 };
 
-number=function(args){
+number=function(object){
   var questionHTML = object.qHTML,
       cols = object.cols,
       placeholder = object.pHold;
   var container = Q(questionHTML,
                     textArea(1,cols,placeholder?placeholder:"...","number"));
-  
+
   return container;
   
 };
