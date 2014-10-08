@@ -16,21 +16,22 @@ for(var k = 0; k < showHideList.length; k++){
 }
 
 function SUBMIT_ONE_QUIZ(quiz){
+
   var i = 0;
   var allSend = "";
+  $("*").each(function(){
+    i++;
+    if(!$(this).attr("id"))
+      $(this).attr("id","$"+i);
+  });
+  i=0;
   $(quiz).find(".question").each(function(){
-    if(!$(this).hasClass("nonquestion")){
-      if(i>0)
-        allSend+=",\n";
+    if($(this).parent().is(':visible')){
       var val = $(this).val();
-      if(val==null){
-        val = "No Answer";
-      }
-      if(val.length < 1){
-        val = "No Answer";
-      }
+      
       //BTW we will escape the val of each answer so that students can't mess server parsing up
-      allSend+=("{q"+i+": "+val+"}");
+      if(!(val.length < 1||val==null))
+        allSend+=(i>0?",\n":"")+("{"+$(this).attr("id")+":"+val+"}");
       i++;
     }
   });
