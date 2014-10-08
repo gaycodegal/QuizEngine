@@ -179,7 +179,7 @@ function dropDown(placeholder,answerList,showHide,isMultiple){
     $(question).addClass("singledrop");
     
   }
-  
+
   
   //adds the possible answers as 'options' in a 'select' element
   for(var i = 0; i < answerList.length; i++){
@@ -210,7 +210,8 @@ function dropDown(placeholder,answerList,showHide,isMultiple){
     });
   }
   
-  
+        $(question).addClass("question");
+
   $(question).attr("tabindex",""+tabIndex);
   tabIndex++;
   return question;
