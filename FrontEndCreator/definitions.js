@@ -618,7 +618,8 @@ var merge = function (obj,objM){
     function quiz(object){
       var questions = object.qList;
       var options={
-        timed:false
+        timed:false,
+        submit:"SUBMIT"
       };
       merge(options,object.opts);
       var timeDiv;
@@ -628,7 +629,7 @@ var merge = function (obj,objM){
       }
       
       var SUBMIT = document.createElement("BUTTON");
-      $(SUBMIT).text("SUBMIT");
+      $(SUBMIT).text(options.submit);
       if(options.timed){
         $(timeDiv).text("Time Elapsed - 00:00:00");
         $(quizContainer).append(timeDiv);
